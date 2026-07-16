@@ -1,0 +1,1 @@
+- [Flight sim conventions](flight-sim-conventions.md) — imperative ref pools for all 3D effects; hooks in R3F sub-components (Afterburner etc) are valid; cone nose rotation convention.

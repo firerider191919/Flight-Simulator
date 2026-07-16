@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Flight Simulator"
+version = "1.0.0"
+id = "artifacts/flight-sim"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22439
+
+[services.development]
+run = "pnpm --filter @workspace/flight-sim run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/flight-sim", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/flight-sim/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22439"
+BASE_PATH = "/"
