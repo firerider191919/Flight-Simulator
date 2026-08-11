@@ -5,20 +5,22 @@ import * as THREE from 'three';
 import Terrain from './Terrain';
 import Clouds from './Clouds';
 import FlightController from './FlightController';
-import ChaseCamera from './ChaseCamera';
+import FlightCamera from './FlightCamera';
 import Targets, { type TargetsHandle } from './Targets';
 import Weapons, { type WeaponsHandle } from './Weapons';
 import type { PlaneDefinition } from './planes';
 import type { WorldLocation } from './world';
-import type { FlightHudState } from './types';
+import type { FlightHudState, CameraMode } from './types';
 
 interface SceneProps {
   active: boolean;
   plane: PlaneDefinition;
   location: WorldLocation;
   resetToken: number;
+  cameraMode?: CameraMode;
   onHudUpdate: (state: Partial<FlightHudState>) => void;
   onCrashChange: (crashed: boolean) => void;
+  onLandChange: (landed: boolean) => void;
 }
 
 export default function Scene({
@@ -26,8 +28,10 @@ export default function Scene({
   plane,
   location,
   resetToken,
+  cameraMode = 'chase',
   onHudUpdate,
   onCrashChange,
+  onLandChange,
 }: SceneProps) {
   const planeRef = useRef<THREE.Group>(null);
   const targetsRef = useRef<TargetsHandle>(null);
@@ -72,10 +76,11 @@ export default function Scene({
         resetToken={resetToken}
         onHudUpdate={onHudUpdate}
         onCrashChange={onCrashChange}
+        onLandChange={onLandChange}
         targetsRef={targetsRef}
         weaponsRef={weaponsRef}
       />
-      <ChaseCamera targetRef={planeRef} active={active} />
+      <FlightCamera targetRef={planeRef} active={active} mode={cameraMode} />
     </Canvas>
   );
 }

@@ -5,14 +5,21 @@ export type BiomeId =
   | 'arctic'
   | 'ocean'
   | 'mountains'
-  | 'volcanic';
+  | 'volcanic'
+  | 'tropical';
 
 export interface WorldLocation {
+  /** Unique slug — used as React key and for lookups. */
+  slug: string;
+  /** Controls which terrain/environment is rendered. */
   id: BiomeId;
+  airportName: string;
+  icao: string;
+  /** Runway alignment in degrees (0=N/S strip, 90=E/W strip). Visual only. */
+  runwayHeading: number;
   name: string;
   region: string;
   description: string;
-  /** Approximate real-world reference point used to synthesize a lat/long readout. */
   originLat: number;
   originLon: number;
   skyColor: string;
@@ -23,8 +30,13 @@ export interface WorldLocation {
 }
 
 export const WORLD_LOCATIONS: WorldLocation[] = [
+  // ── Countryside ─────────────────────────────────────────────
   {
+    slug: 'countryside',
     id: 'countryside',
+    airportName: 'Green Valley Airfield',
+    icao: 'KGVA',
+    runwayHeading: 270,
     name: 'Green Valley',
     region: 'Midwest Countryside',
     description: 'Rolling hills, forests, and a quiet grass airstrip.',
@@ -37,7 +49,29 @@ export const WORLD_LOCATIONS: WorldLocation[] = [
     groundColor: '#4a8f4a',
   },
   {
+    slug: 'london-heathrow',
+    id: 'countryside',
+    airportName: 'Heathrow International',
+    icao: 'EGLL',
+    runwayHeading: 270,
+    name: 'Thames Valley',
+    region: 'Southern England',
+    description: 'Overcast English countryside with a busy intercontinental hub.',
+    originLat: 51.47,
+    originLon: -0.46,
+    skyColor: '#aabccc',
+    fogColor: '#b0bfcc',
+    fogNear: 300,
+    fogFar: 2800,
+    groundColor: '#4a7a42',
+  },
+  // ── City ────────────────────────────────────────────────────
+  {
+    slug: 'city',
     id: 'city',
+    airportName: 'Metro Bay International',
+    icao: 'KMBI',
+    runwayHeading: 90,
     name: 'Metro Bay',
     region: 'Coastal Metropolis',
     description: 'A dense downtown skyline beside the harbor airport.',
@@ -50,7 +84,29 @@ export const WORLD_LOCATIONS: WorldLocation[] = [
     groundColor: '#6b6f76',
   },
   {
+    slug: 'tokyo',
+    id: 'city',
+    airportName: 'Tokyo Haneda',
+    icao: 'RJTT',
+    runwayHeading: 160,
+    name: 'Tokyo Bay',
+    region: 'Kantō, Japan',
+    description: 'Glittering megacity skyline over Tokyo Bay at dusk.',
+    originLat: 35.55,
+    originLon: 139.78,
+    skyColor: '#8faec8',
+    fogColor: '#9cb0c4',
+    fogNear: 280,
+    fogFar: 2400,
+    groundColor: '#555a62',
+  },
+  // ── Desert ──────────────────────────────────────────────────
+  {
+    slug: 'desert',
     id: 'desert',
+    airportName: 'Sahara Desert Strip',
+    icao: 'DAAS',
+    runwayHeading: 0,
     name: 'Sahara Canyon',
     region: 'North African Desert',
     description: 'Sun-baked mesas and canyons over an old dirt strip.',
@@ -63,7 +119,29 @@ export const WORLD_LOCATIONS: WorldLocation[] = [
     groundColor: '#c98f4e',
   },
   {
+    slug: 'dubai',
+    id: 'desert',
+    airportName: 'Dubai International',
+    icao: 'OMDB',
+    runwayHeading: 300,
+    name: 'Dubai Sands',
+    region: 'United Arab Emirates',
+    description: 'Ultramodern towers rising from the golden desert sands.',
+    originLat: 25.25,
+    originLon: 55.36,
+    skyColor: '#e8d5a0',
+    fogColor: '#dcc88c',
+    fogNear: 450,
+    fogFar: 3800,
+    groundColor: '#c4894a',
+  },
+  // ── Arctic ──────────────────────────────────────────────────
+  {
+    slug: 'arctic',
     id: 'arctic',
+    airportName: 'Frostpoint Polar Base',
+    icao: 'BGBW',
+    runwayHeading: 180,
     name: 'Frostpoint Station',
     region: 'Arctic Circle',
     description: 'Ice fields and glaciers around a polar research base.',
@@ -75,8 +153,13 @@ export const WORLD_LOCATIONS: WorldLocation[] = [
     fogFar: 3000,
     groundColor: '#e8f1f6',
   },
+  // ── Ocean ───────────────────────────────────────────────────
   {
+    slug: 'ocean',
     id: 'ocean',
+    airportName: 'Pacific Fleet Carrier',
+    icao: 'N/A',
+    runwayHeading: 90,
     name: 'Pacific Fleet Waters',
     region: 'Open Pacific Ocean',
     description: 'Open sea with an aircraft carrier and scattered islands.',
@@ -89,7 +172,29 @@ export const WORLD_LOCATIONS: WorldLocation[] = [
     groundColor: '#1c5f82',
   },
   {
+    slug: 'bermuda',
+    id: 'ocean',
+    airportName: 'Bermuda Royal Naval Air',
+    icao: 'TXKF',
+    runwayHeading: 300,
+    name: 'Bermuda Triangle Zone',
+    region: 'North Atlantic, Bermuda',
+    description: 'Mysterious turquoise seas and scattered cloud banks.',
+    originLat: 32.36,
+    originLon: -64.68,
+    skyColor: '#7ab8d8',
+    fogColor: '#80bcd6',
+    fogNear: 480,
+    fogFar: 3800,
+    groundColor: '#1a5270',
+  },
+  // ── Mountains ───────────────────────────────────────────────
+  {
+    slug: 'mountains',
     id: 'mountains',
+    airportName: 'Highland Alps Airstrip',
+    icao: 'LSZB',
+    runwayHeading: 280,
     name: 'Highland Alps',
     region: 'European Alpine Range',
     description: 'Jagged snow-capped peaks over a narrow valley airstrip.',
@@ -102,7 +207,29 @@ export const WORLD_LOCATIONS: WorldLocation[] = [
     groundColor: '#7f9163',
   },
   {
+    slug: 'himalaya',
+    id: 'mountains',
+    airportName: 'Himalayan High Pass',
+    icao: 'VNLK',
+    runwayHeading: 60,
+    name: 'Roof of the World',
+    region: 'Himalayas, Nepal',
+    description: 'The world\'s most extreme runway — razor-thin mountain pass.',
+    originLat: 27.69,
+    originLon: 86.73,
+    skyColor: '#c2daea',
+    fogColor: '#ccd9e4',
+    fogNear: 320,
+    fogFar: 2800,
+    groundColor: '#7a8870',
+  },
+  // ── Volcanic ────────────────────────────────────────────────
+  {
+    slug: 'volcanic',
     id: 'volcanic',
+    airportName: 'Ember Archipelago Strip',
+    icao: 'AYPY',
+    runwayHeading: 120,
     name: 'Ember Archipelago',
     region: 'South Pacific Volcanic Islands',
     description: 'Black rock islands and smoking volcanoes over dark seas.',
@@ -114,8 +241,33 @@ export const WORLD_LOCATIONS: WorldLocation[] = [
     fogFar: 3200,
     groundColor: '#233042',
   },
+  // ── Tropical ────────────────────────────────────────────────
+  {
+    slug: 'phuket',
+    id: 'tropical',
+    airportName: 'Phuket Tropical Paradise',
+    icao: 'VTSP',
+    runwayHeading: 90,
+    name: 'Phuket Lagoon',
+    region: 'Andaman Sea, Thailand',
+    description: 'Turquoise lagoons, palm-fringed beaches, and a coastal airstrip.',
+    originLat: 8.11,
+    originLon: 98.3,
+    skyColor: '#7ed6f5',
+    fogColor: '#88dcf8',
+    fogNear: 500,
+    fogFar: 4200,
+    groundColor: '#3a8f5e',
+  },
 ];
 
+export function getLocationBySlug(slug: string): WorldLocation {
+  const loc = WORLD_LOCATIONS.find((l) => l.slug === slug);
+  if (!loc) throw new Error(`Unknown location slug: ${slug}`);
+  return loc;
+}
+
+/** @deprecated use getLocationBySlug for new code */
 export function getLocationById(id: BiomeId): WorldLocation {
   const loc = WORLD_LOCATIONS.find((l) => l.id === id);
   if (!loc) throw new Error(`Unknown location id: ${id}`);
@@ -125,7 +277,6 @@ export function getLocationById(id: BiomeId): WorldLocation {
 const METERS_PER_WORLD_UNIT = 3;
 const METERS_PER_DEGREE = 111_320;
 
-/** Synthesizes a plausible lat/long readout from in-world X/Z position. */
 export function worldPositionToLatLon(
   location: WorldLocation,
   x: number,

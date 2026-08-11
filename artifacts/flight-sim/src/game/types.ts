@@ -1,3 +1,11 @@
+export type CameraMode = 'chase' | 'cockpit' | 'wide' | 'side' | 'nose';
+
+export interface RadarTarget {
+  relX: number;
+  relZ: number;
+  alive: boolean;
+}
+
 export interface FlightHudState {
   speed: number; // knots
   altitude: number; // feet
@@ -10,12 +18,17 @@ export interface FlightHudState {
   stalling: boolean;
   crashed: boolean;
   started: boolean;
+  landed: boolean;
+  pitch: number;   // degrees, positive = nose up
+  bank: number;    // degrees, positive = right bank
   gunAmmo: number;
   gunAmmoMax: number;
   missileAmmo: number;
   missileAmmoMax: number;
   missileLocked: boolean;
   hasWeapons: boolean;
+  radarTargets: RadarTarget[];
+  cameraMode: CameraMode;
 }
 
 export const INITIAL_HUD_STATE: FlightHudState = {
@@ -30,10 +43,15 @@ export const INITIAL_HUD_STATE: FlightHudState = {
   stalling: false,
   crashed: false,
   started: false,
+  landed: false,
+  pitch: 0,
+  bank: 0,
   gunAmmo: 0,
   gunAmmoMax: 0,
   missileAmmo: 0,
   missileAmmoMax: 0,
   missileLocked: false,
   hasWeapons: false,
+  radarTargets: [],
+  cameraMode: 'chase',
 };

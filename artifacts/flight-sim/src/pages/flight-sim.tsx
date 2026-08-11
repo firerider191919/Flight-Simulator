@@ -18,12 +18,19 @@ export default function FlightSimPage() {
   const [mapOpen, setMapOpen] = useState(false);
   const [resetToken, setResetToken] = useState(0);
 
-  const handleHudUpdate = useCallback((partial: Partial<FlightHudState>) => {
-    setHud((prev) => ({ ...prev, ...partial }));
-  }, []);
+  const handleHudUpdate = useCallback(
+    (partial: Partial<FlightHudState>) => {
+      setHud((prev) => ({ ...prev, ...partial }));
+    },
+    [],
+  );
 
   const handleCrashChange = useCallback((crashed: boolean) => {
     setHud((prev) => ({ ...prev, crashed }));
+  }, []);
+
+  const handleLandChange = useCallback((landed: boolean) => {
+    setHud((prev) => ({ ...prev, landed }));
   }, []);
 
   const handleSelectPlane = useCallback((p: PlaneDefinition) => {
@@ -34,10 +41,14 @@ export default function FlightSimPage() {
   const handleSelectLocation = useCallback(
     (loc: WorldLocation) => {
       setLocation(loc);
+
       if (step === 'flying' || mapOpen) {
-        // Mid-flight teleport: reset the plane at the new location.
         setResetToken((t) => t + 1);
-        setHud((prev) => ({ ...prev, crashed: false }));
+        setHud((prev) => ({
+          ...prev,
+          crashed: false,
+          landed: false,
+        }));
         setMapOpen(false);
       } else {
         setStep('ready');
@@ -47,23 +58,44 @@ export default function FlightSimPage() {
   );
 
   const handleStart = useCallback(() => {
-    setHud((prev) => ({ ...prev, started: true, crashed: false }));
+    setHud((prev) => ({
+      ...prev,
+      started: true,
+      crashed: false,
+      landed: false,
+    }));
     setStep('flying');
   }, []);
 
-  const handleBackToLocation = useCallback(() => setStep('location'), []);
-  const handleBackToPlane = useCallback(() => setStep('plane'), []);
+  const handleBackToLocation = useCallback(() => {
+    setStep('location');
+  }, []);
+
+  const handleBackToPlane = useCallback(() => {
+    setStep('plane');
+  }, []);
 
   useEffect(() => {
     if (step !== 'flying') return;
+
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'KeyM') setMapOpen((open) => !open);
+      if (e.code === 'KeyM') {
+        setMapOpen((open) => !open);
+      }
     };
+
     window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
   }, [step]);
 
-  const active = step === 'flying' && hud.started && !hud.crashed && !mapOpen;
+  const active =
+    step === 'flying' &&
+    hud.started &&
+    !hud.crashed &&
+    !mapOpen;
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
@@ -76,12 +108,18 @@ export default function FlightSimPage() {
             resetToken={resetToken}
             onHudUpdate={handleHudUpdate}
             onCrashChange={handleCrashChange}
+            onLandChange={handleLandChange}
           />
         </KeyboardControls>
       )}
 
       {plane && location && step === 'flying' && (
-        <HUD state={hud} plane={plane} location={location} onOpenMap={() => setMapOpen(true)} />
+        <HUD
+          state={hud}
+          plane={plane}
+          location={location}
+          onOpenMap={() => setMapOpen(true)}
+        />
       )}
 
       {step === 'plane' && (

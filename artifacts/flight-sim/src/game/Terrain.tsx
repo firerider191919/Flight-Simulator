@@ -158,6 +158,37 @@ function Volcano({ position, scale, rotationY }: Placement) {
   );
 }
 
+function PalmTree({ position, scale, rotationY }: Placement) {
+  return (
+    <group position={position} scale={scale} rotation={[0, rotationY, 0]}>
+      {/* Trunk — slightly curved via rotation */}
+      <mesh position={[0, 2.5, 0]} rotation={[0.08, 0, 0.12]}>
+        <cylinderGeometry args={[0.16, 0.22, 5, 7]} />
+        <meshStandardMaterial color="#8b6914" />
+      </mesh>
+      {/* Fronds */}
+      {[0, 60, 120, 180, 240, 300].map((deg, i) => {
+        const rad = (deg * Math.PI) / 180;
+        return (
+          <mesh
+            key={i}
+            position={[Math.sin(rad) * 1.8, 5.4, Math.cos(rad) * 1.8]}
+            rotation={[-0.5, rad, 0.35]}
+          >
+            <coneGeometry args={[0.08, 3.6, 4]} />
+            <meshStandardMaterial color="#2d8c3e" />
+          </mesh>
+        );
+      })}
+      {/* Coconuts cluster */}
+      <mesh position={[0, 5.1, 0]}>
+        <sphereGeometry args={[0.32, 6, 6]} />
+        <meshStandardMaterial color="#5a3e1b" />
+      </mesh>
+    </group>
+  );
+}
+
 function Runway({ color, stripeColor }: { color: string; stripeColor: string }) {
   return (
     <group position={[0, 0.03, 0]}>
@@ -169,6 +200,32 @@ function Runway({ color, stripeColor }: { color: string; stripeColor: string }) 
         <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, -150 + i * 28]}>
           <planeGeometry args={[1.4, 12]} />
           <meshStandardMaterial color={stripeColor} />
+        </mesh>
+      ))}
+      {/* Threshold markings */}
+      {[-1, 1].map((side, i) => (
+        <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[side * 12, 0.01, 165]}>
+          <planeGeometry args={[4, 24]} />
+          <meshStandardMaterial color={stripeColor} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function BeachRunway() {
+  return (
+    <group position={[0, 0.03, 0]}>
+      {/* Sandy runway */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[36, 340]} />
+        <meshStandardMaterial color="#d4b483" />
+      </mesh>
+      {/* Stripes */}
+      {Array.from({ length: 12 }).map((_, i) => (
+        <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, -150 + i * 28]}>
+          <planeGeometry args={[1.4, 12]} />
+          <meshStandardMaterial color="#f5e8c0" />
         </mesh>
       ))}
     </group>
@@ -211,6 +268,7 @@ const BIOME_DECOR: Record<
   ocean: { component: Island, count: 22, minDist: 300 },
   mountains: { component: Peak, count: 46, minDist: 220 },
   volcanic: { component: Volcano, count: 30, minDist: 260 },
+  tropical: { component: PalmTree, count: 200, minDist: 100 },
 };
 
 const BIOME_HILLS: Record<BiomeId, boolean> = {
@@ -221,6 +279,7 @@ const BIOME_HILLS: Record<BiomeId, boolean> = {
   ocean: false,
   mountains: false,
   volcanic: false,
+  tropical: true,
 };
 
 export default function Terrain({ location }: { location: WorldLocation }) {
@@ -233,6 +292,15 @@ export default function Terrain({ location }: { location: WorldLocation }) {
   );
   const Decor = decor.component;
 
+  const runwayColor =
+    location.id === 'desert'
+      ? '#8a6a45'
+      : location.id === 'arctic'
+        ? '#c9d6dd'
+        : location.id === 'volcanic'
+          ? '#1c1815'
+          : '#3a3a3d';
+
   return (
     <group>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
@@ -242,19 +310,10 @@ export default function Terrain({ location }: { location: WorldLocation }) {
 
       {location.id === 'ocean' ? (
         <AircraftCarrier />
+      ) : location.id === 'tropical' ? (
+        <BeachRunway />
       ) : (
-        <Runway
-          color={
-            location.id === 'desert'
-              ? '#8a6a45'
-              : location.id === 'arctic'
-                ? '#c9d6dd'
-                : location.id === 'volcanic'
-                  ? '#1c1815'
-                  : '#3a3a3d'
-          }
-          stripeColor="#f4f4f2"
-        />
+        <Runway color={runwayColor} stripeColor="#f4f4f2" />
       )}
 
       {placements.map((p, i) => (
