@@ -42,3 +42,10 @@ The main wings on the fighter, A320, and 747 models use tapered custom prism geo
 **Why:** Planform taper and sweep make the aircraft read as their specific real-world class from the chase and selection cameras without adding a heavy model asset dependency.
 
 **How to apply:** Reuse the shared tapered-wing part for new aircraft; keep nose direction local -Z and preserve the existing cone rotation convention.
+
+## Flight physics and warnings
+Flight movement uses inertial velocity with thrust, parasite drag, gravity, lift, induced drag, angle-of-attack stall behavior, and angular-rate damping. Warning tones are generated with Web Audio after the first pointer or keyboard interaction.
+
+**Why:** The simulator needs free, continuous aircraft movement rather than direct arcade-style position/rotation updates, while browser autoplay rules prohibit unsolicited audio.
+
+**How to apply:** Keep physics calculations in the frame loop with refs, report warning booleans through `FlightHudState`, and let the warning component own audio timers rather than creating sounds in the render loop.

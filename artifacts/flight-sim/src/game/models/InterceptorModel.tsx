@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { TaperedWing } from './AircraftParts';
 
 function Afterburner() {
   const coreRef = useRef<THREE.Mesh>(null);
@@ -102,34 +103,13 @@ export default function InterceptorModel() {
         <meshStandardMaterial color="#151c22" metalness={0.5} roughness={0.4} />
       </mesh>
 
-      {/* Forward canards */}
-      <mesh position={[0.9, -0.04, -1.45]} rotation={[0, 0, -0.08]}>
-        <boxGeometry args={[1.25, 0.07, 0.55]} />
-        <meshStandardMaterial color="#4a5660" metalness={0.45} roughness={0.45} />
-      </mesh>
-      <mesh position={[-0.9, -0.04, -1.45]} rotation={[0, 0, 0.08]}>
-        <boxGeometry args={[1.25, 0.07, 0.55]} />
-        <meshStandardMaterial color="#4a5660" metalness={0.45} roughness={0.45} />
-      </mesh>
+      {/* Close-coupled canards */}
+      <TaperedWing side={1} rootX={0.08} span={1.18} rootChord={0.64} tipChord={0.18} sweep={0.22} y={-0.04} z={-1.45} color="#4a5660" metalness={0.45} roughness={0.45} thickness={0.07} />
+      <TaperedWing side={-1} rootX={0.08} span={1.18} rootChord={0.64} tipChord={0.18} sweep={0.22} y={-0.04} z={-1.45} color="#4a5660" metalness={0.45} roughness={0.45} thickness={0.07} />
 
-      {/* Large delta main wings */}
-      <mesh position={[2.4, -0.15, 0.95]} rotation={[0.04, -0.32, -0.04]} castShadow>
-        <boxGeometry args={[4.6, 0.08, 2.2]} />
-        <meshStandardMaterial color="#4a5660" metalness={0.42} roughness={0.48} />
-      </mesh>
-      <mesh position={[-2.4, -0.15, 0.95]} rotation={[0.04, 0.32, 0.04]} castShadow>
-        <boxGeometry args={[4.6, 0.08, 2.2]} />
-        <meshStandardMaterial color="#4a5660" metalness={0.42} roughness={0.48} />
-      </mesh>
-      {/* Wing root */}
-      <mesh position={[0.9, -0.14, 1.0]}>
-        <boxGeometry args={[1.8, 0.08, 2.3]} />
-        <meshStandardMaterial color="#4a5660" metalness={0.42} roughness={0.48} />
-      </mesh>
-      <mesh position={[-0.9, -0.14, 1.0]}>
-        <boxGeometry args={[1.8, 0.08, 2.3]} />
-        <meshStandardMaterial color="#4a5660" metalness={0.42} roughness={0.48} />
-      </mesh>
+      {/* Eurofighter delta main wings — very broad root, sharp swept tip */}
+      <TaperedWing side={1} rootX={0.15} span={4.65} rootChord={2.65} tipChord={0.16} sweep={1.65} y={-0.15} z={0.8} color="#4a5660" metalness={0.42} roughness={0.48} thickness={0.08} />
+      <TaperedWing side={-1} rootX={0.15} span={4.65} rootChord={2.65} tipChord={0.16} sweep={1.65} y={-0.15} z={0.8} color="#4a5660" metalness={0.42} roughness={0.48} thickness={0.08} />
 
       {/* Single vertical stabilizer */}
       <mesh position={[0, 0.72, 2.0]} castShadow>

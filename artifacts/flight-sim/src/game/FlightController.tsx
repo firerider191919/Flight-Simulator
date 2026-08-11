@@ -10,9 +10,7 @@ import type { WeaponsHandle } from './Weapons';
 import { worldPositionToLatLon, formatLatLon, type WorldLocation } from './world';
 import type { FlightHudState } from './types';
 
-const BANK_TURN_COUPLING = 0.65;
-const AUTO_LEVEL_ROLL = 0.35;
-const GRAVITY_DROP = 9;
+const GRAVITY = 9;
 const GROUND_LEVEL = 0.9;
 const START_ALTITUDE = 70;
 const WORLD_UNIT_TO_FEET = 12;
@@ -36,6 +34,11 @@ interface FlightControllerProps {
 const _forward = new THREE.Vector3();
 const _prevForward = new THREE.Vector3();
 const _right = new THREE.Vector3();
+const _up = new THREE.Vector3();
+const _localVelocity = new THREE.Vector3();
+const _lift = new THREE.Vector3();
+const _engineForce = new THREE.Vector3();
+const _forwardVelocity = new THREE.Vector3();
 const _euler = new THREE.Euler();
 const _muzzle = new THREE.Vector3();
 const _lockCandidate = new THREE.Vector3();
@@ -60,6 +63,8 @@ const FlightController = forwardRef<THREE.Group | null, FlightControllerProps>(
     const speedRef = useRef(
       plane.stats.minSpeed + (plane.stats.maxSpeed - plane.stats.minSpeed) * 0.3,
     );
+    const velocityRef = useRef(new THREE.Vector3());
+    const angularVelocityRef = useRef(new THREE.Vector3());
     const hudTimerRef = useRef(0);
     const crashedRef = useRef(false);
     const landedRef = useRef(false);
@@ -79,8 +84,12 @@ const FlightController = forwardRef<THREE.Group | null, FlightControllerProps>(
       group.position.set(0, START_ALTITUDE, 140);
       group.quaternion.identity();
       group.rotateY(Math.PI);
-      speedRef.current =
+      const initialSpeed =
         plane.stats.minSpeed + (plane.stats.maxSpeed - plane.stats.minSpeed) * 0.3;
+      speedRef.current = initialSpeed;
+      _forward.set(0, 0, -1).applyQuaternion(group.quaternion);
+      velocityRef.current.copy(_forward).multiplyScalar(initialSpeed);
+      angularVelocityRef.current.set(0, 0, 0);
       throttleRef.current = 0.55;
       crashedRef.current = false;
       if (landedRef.current) {
@@ -118,53 +127,73 @@ const FlightController = forwardRef<THREE.Group | null, FlightControllerProps>(
         throttleRef.current = Math.max(0, throttleRef.current - delta * 0.6);
       }
 
-      if (keys.pitchUp) group.rotateX(stats.pitchRate * delta);
-      if (keys.pitchDown) group.rotateX(-stats.pitchRate * delta);
+      // Rotational inertia: inputs move angular velocity rather than snapping
+      // the aircraft. Releasing the stick lets the aircraft settle naturally;
+      // it does not auto-level like the old arcade controller.
+      const pitchInput = keys.pitchUp ? 1 : keys.pitchDown ? -1 : 0;
+      const rollInput = keys.rollLeft ? 1 : keys.rollRight ? -1 : 0;
+      const yawInput = keys.yawLeft ? 1 : keys.yawRight ? -1 : 0;
+      const response = Math.min(1, 5.5 * delta);
+      angularVelocityRef.current.x +=
+        (pitchInput * stats.pitchRate - angularVelocityRef.current.x) * response;
+      angularVelocityRef.current.z +=
+        (rollInput * stats.rollRate - angularVelocityRef.current.z) * response;
+      angularVelocityRef.current.y +=
+        (yawInput * stats.yawRate - angularVelocityRef.current.y) * response;
 
-      let rolling = false;
-      if (keys.rollLeft) {
-        group.rotateZ(stats.rollRate * delta);
-        rolling = true;
-      }
-      if (keys.rollRight) {
-        group.rotateZ(-stats.rollRate * delta);
-        rolling = true;
-      }
-      if (keys.yawLeft) group.rotateY(stats.yawRate * delta);
-      if (keys.yawRight) group.rotateY(-stats.yawRate * delta);
+      // Small aerodynamic damping keeps the simulator controllable but still
+      // leaves bank and pitch inertia visible to the pilot.
+      angularVelocityRef.current.multiplyScalar(Math.exp(-0.22 * delta));
+      group.rotateX(angularVelocityRef.current.x * delta);
+      group.rotateZ(angularVelocityRef.current.z * delta);
+      group.rotateY(angularVelocityRef.current.y * delta);
 
-      _right.set(1, 0, 0).applyQuaternion(group.quaternion);
-      const bankSin = THREE.MathUtils.clamp(_right.y, -1, 1);
-      group.rotateY(BANK_TURN_COUPLING * bankSin * delta);
-
-      if (!rolling && Math.abs(bankSin) > 0.01) {
-        const correction = Math.sign(bankSin) * AUTO_LEVEL_ROLL * delta;
-        const applied =
-          Math.abs(correction) > Math.abs(bankSin) * 0.6
-            ? Math.sign(bankSin) * Math.abs(bankSin) * 0.6
-            : correction;
-        group.rotateZ(-applied);
-      }
-
-      const targetSpeed = stats.minSpeed + throttleRef.current * (stats.maxSpeed - stats.minSpeed);
-      speedRef.current += (targetSpeed - speedRef.current) * Math.min(1, stats.accel * delta);
-      const stalling = speedRef.current < stats.stallSpeed;
-
-      _prevForward.set(0, 0, -1).applyQuaternion(group.quaternion);
       _forward.set(0, 0, -1).applyQuaternion(group.quaternion);
-      const displacement = _forward.clone().multiplyScalar(speedRef.current * delta);
-      group.position.add(displacement);
+      _right.set(1, 0, 0).applyQuaternion(group.quaternion);
+      _up.set(0, 1, 0).applyQuaternion(group.quaternion);
 
+      const airspeed = velocityRef.current.length();
+      speedRef.current = airspeed;
+      _localVelocity.copy(velocityRef.current).applyQuaternion(group.quaternion.clone().invert());
+      const forwardAirflow = Math.max(0.1, -_localVelocity.z);
+      const angleOfAttack = Math.atan2(_localVelocity.y, forwardAirflow);
+
+      // Thrust, parasite drag, gravity, and lift. Values are tuned to this
+      // stylized world scale while preserving real flight relationships.
+      _engineForce.copy(_forward).multiplyScalar(
+        stats.accel * (0.35 + throttleRef.current * 1.45),
+      );
+      velocityRef.current.addScaledVector(_engineForce, delta);
+
+      const speedRatio = THREE.MathUtils.clamp(airspeed / stats.maxSpeed, 0, 1.5);
+      const drag = 0.045 + speedRatio * speedRatio * 0.16;
+      velocityRef.current.multiplyScalar(Math.exp(-drag * delta));
+
+      const liftCurve = THREE.MathUtils.clamp(0.95 + angleOfAttack * 3.4, -0.35, 1.45);
+      const liftMagnitude = GRAVITY * speedRatio * speedRatio * 3.0 * liftCurve;
+      _lift.copy(_up).multiplyScalar(liftMagnitude);
+      velocityRef.current.addScaledVector(_lift, delta);
+      velocityRef.current.y -= GRAVITY * delta;
+
+      // Induced drag grows rapidly with angle of attack, making steep pulls
+      // bleed energy and eventually produce a believable stall.
+      const inducedDrag = Math.min(0.4, Math.abs(angleOfAttack) * 0.8);
+      velocityRef.current.multiplyScalar(Math.exp(-inducedDrag * delta));
+
+      const stalling =
+        airspeed < stats.stallSpeed || angleOfAttack > THREE.MathUtils.degToRad(16);
       if (stalling) {
-        const stallFactor = 1 - speedRef.current / stats.stallSpeed;
-        group.position.y -= GRAVITY_DROP * stallFactor * delta;
+        velocityRef.current.y -= GRAVITY * 0.35 * delta;
       }
+
+      const displacement = velocityRef.current.clone().multiplyScalar(delta);
+      group.position.add(displacement);
 
       if (group.position.y <= GROUND_LEVEL) {
         group.position.y = GROUND_LEVEL;
         const verticalSpeed = delta > 0 ? displacement.y / delta : 0;
         const softTouchdown =
-          speedRef.current < stats.stallSpeed * 2.2 &&
+          airspeed < stats.stallSpeed * 2.2 &&
           verticalSpeed > -5 &&
           _forward.y > -0.25;
         if (softTouchdown) {
@@ -240,7 +269,7 @@ const FlightController = forwardRef<THREE.Group | null, FlightControllerProps>(
 
         const turnAngle = _prevForward.angleTo(_forward);
         const turnRate = delta > 0 ? turnAngle / delta : 0;
-        const speedMs = speedRef.current * WORLD_UNIT_TO_METERS;
+        const speedMs = airspeed * WORLD_UNIT_TO_METERS;
         const gForce = 1 + (turnRate * speedMs) / G;
         const { lat, lon } = worldPositionToLatLon(location, group.position.x, group.position.z);
         const pitchDeg = THREE.MathUtils.radToDeg(
@@ -251,17 +280,20 @@ const FlightController = forwardRef<THREE.Group | null, FlightControllerProps>(
           relZ: target.getPosition().z - group.position.z,
           alive: target.isAlive(),
         }));
+        const lowAltitude =
+          group.position.y * WORLD_UNIT_TO_FEET < 240 && displacement.y < -0.08;
 
         onHudUpdate({
-          speed: Math.round(speedRef.current * SPEED_TO_KNOTS),
+          speed: Math.round(airspeed * SPEED_TO_KNOTS),
           altitude: Math.round(group.position.y * WORLD_UNIT_TO_FEET),
           throttle: throttleRef.current,
           heading: Math.round(headingDeg),
           vSpeed: Math.round((displacement.y * WORLD_UNIT_TO_FEET) / Math.max(delta, 0.0001)),
           gForce: Math.round(gForce * 10) / 10,
-          mach: Math.round((speedRef.current / SPEED_OF_SOUND) * 100) / 100,
+          mach: Math.round((airspeed / SPEED_OF_SOUND) * 100) / 100,
           latLon: formatLatLon(lat, lon),
           stalling,
+          lowAltitude,
           pitch: Math.round(pitchDeg * 10) / 10,
           bank: Math.round(THREE.MathUtils.radToDeg(Math.asin(THREE.MathUtils.clamp(-_right.y, -1, 1))) * 10) / 10,
           hasWeapons: !!weapons,

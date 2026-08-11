@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { TaperedWing } from './AircraftParts';
 
 function Afterburner({ x = 0 }: { x?: number }) {
   const coreRef = useRef<THREE.Mesh>(null);
@@ -82,34 +83,13 @@ export default function StealthModel() {
         <meshStandardMaterial color="#16191e" metalness={0.5} roughness={0.4} />
       </mesh>
 
-      {/* Trapezoidal main wings — large swept */}
-      <mesh position={[2.5, -0.12, 0.9]} rotation={[0.06, -0.25, -0.04]} castShadow>
-        <boxGeometry args={[4.5, 0.08, 1.9]} />
-        <meshStandardMaterial color="#1a1d22" metalness={0.55} roughness={0.4} />
-      </mesh>
-      <mesh position={[-2.5, -0.12, 0.9]} rotation={[0.06, 0.25, 0.04]} castShadow>
-        <boxGeometry args={[4.5, 0.08, 1.9]} />
-        <meshStandardMaterial color="#1a1d22" metalness={0.55} roughness={0.4} />
-      </mesh>
-      {/* Wing root */}
-      <mesh position={[0.85, -0.12, 0.9]}>
-        <boxGeometry args={[1.7, 0.08, 2.0]} />
-        <meshStandardMaterial color="#1a1d22" metalness={0.55} roughness={0.4} />
-      </mesh>
-      <mesh position={[-0.85, -0.12, 0.9]}>
-        <boxGeometry args={[1.7, 0.08, 2.0]} />
-        <meshStandardMaterial color="#1a1d22" metalness={0.55} roughness={0.4} />
-      </mesh>
+      {/* F-22 trapezoidal diamond-planform main wings */}
+      <TaperedWing side={1} rootX={0.15} span={4.6} rootChord={2.05} tipChord={0.42} sweep={1.25} y={-0.12} z={0.65} color="#1a1d22" metalness={0.55} roughness={0.4} thickness={0.09} />
+      <TaperedWing side={-1} rootX={0.15} span={4.6} rootChord={2.05} tipChord={0.42} sweep={1.25} y={-0.12} z={0.65} color="#1a1d22" metalness={0.55} roughness={0.4} thickness={0.09} />
 
       {/* All-moving horizontal tails */}
-      <mesh position={[1.3, -0.06, 2.1]} rotation={[0, -0.2, -0.1]}>
-        <boxGeometry args={[2.1, 0.07, 0.8]} />
-        <meshStandardMaterial color="#161820" metalness={0.5} roughness={0.45} />
-      </mesh>
-      <mesh position={[-1.3, -0.06, 2.1]} rotation={[0, 0.2, 0.1]}>
-        <boxGeometry args={[2.1, 0.07, 0.8]} />
-        <meshStandardMaterial color="#161820" metalness={0.5} roughness={0.45} />
-      </mesh>
+      <TaperedWing side={1} rootX={0.1} span={1.35} rootChord={0.8} tipChord={0.18} sweep={0.32} y={-0.06} z={2.1} color="#161820" metalness={0.5} roughness={0.45} thickness={0.07} />
+      <TaperedWing side={-1} rootX={0.1} span={1.35} rootChord={0.8} tipChord={0.18} sweep={0.32} y={-0.06} z={2.1} color="#161820" metalness={0.5} roughness={0.45} thickness={0.07} />
 
       {/* Twin canted vertical tails */}
       <mesh position={[0.52, 0.75, 2.05]} rotation={[0, 0, -0.35]}>

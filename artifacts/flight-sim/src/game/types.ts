@@ -16,6 +16,7 @@ export interface FlightHudState {
   mach: number;
   latLon: string;
   stalling: boolean;
+  lowAltitude: boolean;
   crashed: boolean;
   started: boolean;
   landed: boolean;
@@ -41,6 +42,7 @@ export const INITIAL_HUD_STATE: FlightHudState = {
   mach: 0,
   latLon: '',
   stalling: false,
+  lowAltitude: false,
   crashed: false,
   started: false,
   landed: false,

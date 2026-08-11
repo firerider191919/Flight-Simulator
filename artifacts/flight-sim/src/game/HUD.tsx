@@ -61,6 +61,7 @@ export default function HUD({ state, plane, location, onOpenMap, onOpenMenu }: H
     mach,
     latLon,
     stalling,
+    lowAltitude,
     crashed,
     started,
     gunAmmo,
@@ -131,7 +132,12 @@ export default function HUD({ state, plane, location, onOpenMap, onOpenMenu }: H
         </div>
         {stalling && (
           <div className="text-amber-400 text-[11px] font-bold tracking-wide mt-1 animate-pulse">
-            STALL
+            STALL WARNING
+          </div>
+        )}
+        {lowAltitude && (
+          <div className="text-rose-400 text-[11px] font-bold tracking-wide mt-1 animate-pulse">
+            LOW ALTITUDE
           </div>
         )}
       </div>

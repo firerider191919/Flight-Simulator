@@ -9,6 +9,7 @@ import type { PlaneDefinition } from '@/game/planes';
 import type { WorldLocation } from '@/game/world';
 import CommandMenu from '@/game/CommandMenu';
 import type { CameraMode } from '@/game/types';
+import WarningAudio from '@/game/WarningAudio';
 
 type FlowStep = 'plane' | 'location' | 'ready' | 'flying';
 
@@ -159,6 +160,8 @@ export default function FlightSimPage() {
           }}
         />
       )}
+
+      {step === 'flying' && <WarningAudio state={hud} />}
 
       {step === 'plane' && (
         <SelectScreen

@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { TaperedWing } from './models/AircraftParts';
 
 function Propeller() {
   const propRef = useRef<THREE.Group>(null);
@@ -58,27 +59,15 @@ export default function PlaneModel() {
         <meshStandardMaterial color="#c03018" />
       </mesh>
 
-      {/* High-mounted main wings */}
-      <mesh position={[0, 0.38, 0.1]} castShadow>
-        <boxGeometry args={[5.8, 0.1, 1.05]} />
-        <meshStandardMaterial color="#f0f0ee" metalness={0.1} roughness={0.6} />
-      </mesh>
-      {/* Wing leading-edge taper (inner) */}
-      <mesh position={[1.4, 0.38, -0.2]} rotation={[0, 0.18, 0]}>
-        <boxGeometry args={[2.0, 0.09, 0.5]} />
-        <meshStandardMaterial color="#e8e8e6" />
-      </mesh>
-      <mesh position={[-1.4, 0.38, -0.2]} rotation={[0, -0.18, 0]}>
-        <boxGeometry args={[2.0, 0.09, 0.5]} />
-        <meshStandardMaterial color="#e8e8e6" />
-      </mesh>
-      {/* Red wing-tip accent */}
-      <mesh position={[2.78, 0.38, 0.1]}>
-        <boxGeometry args={[0.25, 0.09, 1.05]} />
+      {/* High-mounted, lightly tapered Cessna wing with red tips */}
+      <TaperedWing side={1} rootX={0.1} span={2.78} rootChord={1.28} tipChord={0.62} sweep={0.12} y={0.38} z={0.05} color="#f0f0ee" metalness={0.1} roughness={0.6} thickness={0.1} />
+      <TaperedWing side={-1} rootX={0.1} span={2.78} rootChord={1.28} tipChord={0.62} sweep={0.12} y={0.38} z={0.05} color="#f0f0ee" metalness={0.1} roughness={0.6} thickness={0.1} />
+      <mesh position={[2.72, 0.38, 0.1]}>
+        <boxGeometry args={[0.18, 0.1, 0.62]} />
         <meshStandardMaterial color="#e8452c" />
       </mesh>
-      <mesh position={[-2.78, 0.38, 0.1]}>
-        <boxGeometry args={[0.25, 0.09, 1.05]} />
+      <mesh position={[-2.72, 0.38, 0.1]}>
+        <boxGeometry args={[0.18, 0.1, 0.62]} />
         <meshStandardMaterial color="#e8452c" />
       </mesh>
 
@@ -99,10 +88,8 @@ export default function PlaneModel() {
       </mesh>
 
       {/* Horizontal stabilizer */}
-      <mesh position={[0, 0.06, 1.78]} castShadow>
-        <boxGeometry args={[1.9, 0.07, 0.52]} />
-        <meshStandardMaterial color="#f0f0ee" />
-      </mesh>
+      <TaperedWing side={1} rootX={0.05} span={0.92} rootChord={0.58} tipChord={0.25} sweep={0.08} y={0.06} z={1.78} color="#f0f0ee" thickness={0.07} />
+      <TaperedWing side={-1} rootX={0.05} span={0.92} rootChord={0.58} tipChord={0.25} sweep={0.08} y={0.06} z={1.78} color="#f0f0ee" thickness={0.07} />
       {/* Elevators (slightly different shade) */}
       <mesh position={[0, 0.06, 1.95]}>
         <boxGeometry args={[1.7, 0.065, 0.2]} />

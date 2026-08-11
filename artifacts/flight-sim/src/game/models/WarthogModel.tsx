@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { TaperedWing } from './AircraftParts';
 
 function TurbofanPod({ x }: { x: number }) {
   return (
@@ -113,20 +114,9 @@ export default function WarthogModel() {
         <meshStandardMaterial color="#444840" metalness={0.4} roughness={0.5} />
       </mesh>
 
-      {/* Straight high-mounted wings */}
-      <mesh position={[0, 0.28, 0.3]} castShadow>
-        <boxGeometry args={[8.8, 0.14, 1.7]} />
-        <meshStandardMaterial color="#788070" metalness={0.3} roughness={0.6} />
-      </mesh>
-      {/* Wing chord taper pieces */}
-      <mesh position={[3.6, 0.28, 0.55]} rotation={[0, 0.1, 0]}>
-        <boxGeometry args={[2.0, 0.13, 1.0]} />
-        <meshStandardMaterial color="#728070" metalness={0.3} roughness={0.6} />
-      </mesh>
-      <mesh position={[-3.6, 0.28, 0.55]} rotation={[0, -0.1, 0]}>
-        <boxGeometry args={[2.0, 0.13, 1.0]} />
-        <meshStandardMaterial color="#728070" metalness={0.3} roughness={0.6} />
-      </mesh>
+      {/* A-10 straight, tapered high wing */}
+      <TaperedWing side={1} rootX={0.18} span={4.45} rootChord={1.85} tipChord={0.72} sweep={0.08} y={0.28} z={0.28} color="#788070" metalness={0.3} roughness={0.6} thickness={0.14} />
+      <TaperedWing side={-1} rootX={0.18} span={4.45} rootChord={1.85} tipChord={0.72} sweep={0.08} y={0.28} z={0.28} color="#788070" metalness={0.3} roughness={0.6} thickness={0.14} />
 
       {/* Twin engine pods on upper rear fuselage */}
       <TurbofanPod x={0.78} />
@@ -143,10 +133,8 @@ export default function WarthogModel() {
       </mesh>
 
       {/* Horizontal stabilizer */}
-      <mesh position={[0, 0.08, 2.05]} castShadow>
-        <boxGeometry args={[3.6, 0.1, 0.9]} />
-        <meshStandardMaterial color="#788070" />
-      </mesh>
+      <TaperedWing side={1} rootX={0.1} span={1.7} rootChord={0.8} tipChord={0.25} sweep={0.22} y={0.08} z={2.05} color="#788070" thickness={0.1} />
+      <TaperedWing side={-1} rootX={0.1} span={1.7} rootChord={0.8} tipChord={0.25} sweep={0.22} y={0.08} z={2.05} color="#788070" thickness={0.1} />
 
       {/* Hardpoints with bombs */}
       <HardpointBomb x={2.5} z={0.4} />
