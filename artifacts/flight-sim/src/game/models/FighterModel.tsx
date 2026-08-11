@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { TaperedWing } from './AircraftParts';
 
 function Afterburner({ z = 0 }: { z?: number }) {
   const coreRef = useRef<THREE.Mesh>(null);
@@ -113,24 +114,12 @@ export default function FighterModel() {
       </mesh>
 
       {/* Main swept wings */}
-      <mesh position={[2.2, -0.14, 0.85]} rotation={[0.05, -0.22, -0.06]} castShadow>
-        <boxGeometry args={[3.9, 0.09, 1.65]} />
-        <meshStandardMaterial color="#58636b" metalness={0.45} roughness={0.45} />
-      </mesh>
-      <mesh position={[-2.2, -0.14, 0.85]} rotation={[0.05, 0.22, 0.06]} castShadow>
-        <boxGeometry args={[3.9, 0.09, 1.65]} />
-        <meshStandardMaterial color="#58636b" metalness={0.45} roughness={0.45} />
-      </mesh>
+      <TaperedWing side={1} rootX={0.25} span={3.95} rootChord={1.7} tipChord={0.32} sweep={0.9} y={-0.14} z={0.55} color="#58636b" metalness={0.45} roughness={0.45} />
+      <TaperedWing side={-1} rootX={0.25} span={3.95} rootChord={1.7} tipChord={0.32} sweep={0.9} y={-0.14} z={0.55} color="#58636b" metalness={0.45} roughness={0.45} />
 
       {/* All-moving tailplanes */}
-      <mesh position={[1.05, -0.02, 2.0]} rotation={[0, -0.18, -0.12]}>
-        <boxGeometry args={[1.85, 0.08, 0.72]} />
-        <meshStandardMaterial color="#50585f" metalness={0.4} roughness={0.45} />
-      </mesh>
-      <mesh position={[-1.05, -0.02, 2.0]} rotation={[0, 0.18, 0.12]}>
-        <boxGeometry args={[1.85, 0.08, 0.72]} />
-        <meshStandardMaterial color="#50585f" metalness={0.4} roughness={0.45} />
-      </mesh>
+      <TaperedWing side={1} rootX={0.15} span={1.75} rootChord={0.78} tipChord={0.18} sweep={0.3} y={-0.02} z={2.0} color="#50585f" metalness={0.4} roughness={0.45} />
+      <TaperedWing side={-1} rootX={0.15} span={1.75} rootChord={0.78} tipChord={0.18} sweep={0.3} y={-0.02} z={2.0} color="#50585f" metalness={0.4} roughness={0.45} />
 
       {/* Single vertical stabilizer */}
       <mesh position={[0, 0.72, 1.95]} castShadow>

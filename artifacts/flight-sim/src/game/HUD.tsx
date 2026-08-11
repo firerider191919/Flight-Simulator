@@ -8,6 +8,7 @@ interface HUDProps {
   plane: PlaneDefinition;
   location: WorldLocation;
   onOpenMap: () => void;
+  onOpenMenu: () => void;
 }
 
 function CompassBar({ heading }: { heading: number }) {
@@ -49,7 +50,7 @@ function CompassBar({ heading }: { heading: number }) {
   );
 }
 
-export default function HUD({ state, plane, location, onOpenMap }: HUDProps) {
+export default function HUD({ state, plane, location, onOpenMap, onOpenMenu }: HUDProps) {
   const {
     speed,
     altitude,
@@ -68,6 +69,8 @@ export default function HUD({ state, plane, location, onOpenMap }: HUDProps) {
     missileAmmoMax,
     missileLocked,
     hasWeapons,
+    landed,
+    cameraMode,
   } = state;
 
   if (!started) return null;
@@ -87,14 +90,32 @@ export default function HUD({ state, plane, location, onOpenMap }: HUDProps) {
         <div className="text-xs text-white/70 bg-black/40 rounded px-2 py-1">
           {plane.name}
         </div>
-        <button
-          type="button"
-          onClick={onOpenMap}
-          className="pointer-events-auto rounded-md bg-black/55 border border-white/20 px-3 py-1.5 text-xs text-white hover:bg-black/70 transition-colors"
-        >
-          World Map (M)
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={onOpenMap}
+            className="pointer-events-auto rounded-md border border-white/20 bg-black/55 px-3 py-1.5 text-xs text-white transition-colors hover:bg-black/70"
+          >
+            Airports (M)
+          </button>
+          <button
+            type="button"
+            onClick={onOpenMenu}
+            className="pointer-events-auto rounded-md border border-emerald-400/30 bg-black/55 px-3 py-1.5 text-xs text-emerald-200 transition-colors hover:bg-emerald-400/15"
+          >
+            Menu (Esc)
+          </button>
+        </div>
+        <div className="text-[10px] uppercase tracking-widest text-white/40">
+          {cameraMode} camera
+        </div>
       </div>
+
+      {landed && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 rounded-full border border-emerald-400/40 bg-emerald-950/70 px-4 py-2 text-xs font-bold tracking-widest text-emerald-300">
+          LANDED &middot; TAXI TO PARKING
+        </div>
+      )}
 
       {/* Bottom left: airspeed / mach */}
       <div className="absolute bottom-6 left-6 rounded-lg bg-black/50 border border-white/20 px-4 py-3 text-white">

@@ -1,4 +1,5 @@
 /** Boeing 747-400 style four-engine jumbo jet. Nose points along local -Z. */
+import { TaperedWing } from './AircraftParts';
 
 function EnginePod({ x, z }: { x: number; z: number }) {
   return (
@@ -94,23 +95,8 @@ export default function Jumbo747Model() {
       ))}
 
       {/* Main wings — swept 37°, dihedral */}
-      <mesh position={[3.5, -0.52, 1.1]} rotation={[0.09, -0.22, 0.05]} castShadow>
-        <boxGeometry args={[7.0, 0.2, 2.75]} />
-        <meshStandardMaterial color="#e8ecf0" metalness={0.15} roughness={0.55} />
-      </mesh>
-      <mesh position={[-3.5, -0.52, 1.1]} rotation={[0.09, 0.22, -0.05]} castShadow>
-        <boxGeometry args={[7.0, 0.2, 2.75]} />
-        <meshStandardMaterial color="#e8ecf0" metalness={0.15} roughness={0.55} />
-      </mesh>
-      {/* Wing root fill */}
-      <mesh position={[1.05, -0.5, 1.1]}>
-        <boxGeometry args={[2.1, 0.2, 2.8]} />
-        <meshStandardMaterial color="#e8ecf0" metalness={0.15} roughness={0.55} />
-      </mesh>
-      <mesh position={[-1.05, -0.5, 1.1]}>
-        <boxGeometry args={[2.1, 0.2, 2.8]} />
-        <meshStandardMaterial color="#e8ecf0" metalness={0.15} roughness={0.55} />
-      </mesh>
+      <TaperedWing side={1} rootX={0.35} span={6.9} rootChord={3.0} tipChord={0.6} sweep={1.4} y={-0.52} z={0.9} color="#e8ecf0" metalness={0.15} roughness={0.55} thickness={0.19} />
+      <TaperedWing side={-1} rootX={0.35} span={6.9} rootChord={3.0} tipChord={0.6} sweep={1.4} y={-0.52} z={0.9} color="#e8ecf0" metalness={0.15} roughness={0.55} thickness={0.19} />
 
       {/* Winglets */}
       <mesh position={[7.0, 0.65, 2.0]} rotation={[0, 0, 0.45]}>

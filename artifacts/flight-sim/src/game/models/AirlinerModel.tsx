@@ -1,4 +1,5 @@
 /** A320-style twin-engine commercial airliner. Nose points along local -Z. */
+import { TaperedWing } from './AircraftParts';
 
 function EnginePod({ x }: { x: number }) {
   return (
@@ -87,23 +88,8 @@ export default function AirlinerModel() {
       ))}
 
       {/* Main wings — swept back, slight dihedral */}
-      <mesh position={[2.6, -0.38, 0.7]} rotation={[0.07, -0.18, 0.04]} castShadow>
-        <boxGeometry args={[5.2, 0.14, 1.95]} />
-        <meshStandardMaterial color="#eaeef2" metalness={0.15} roughness={0.55} />
-      </mesh>
-      <mesh position={[-2.6, -0.38, 0.7]} rotation={[0.07, 0.18, -0.04]} castShadow>
-        <boxGeometry args={[5.2, 0.14, 1.95]} />
-        <meshStandardMaterial color="#eaeef2" metalness={0.15} roughness={0.55} />
-      </mesh>
-      {/* Wing root fillets */}
-      <mesh position={[0.9, -0.35, 0.75]}>
-        <boxGeometry args={[1.8, 0.14, 2.0]} />
-        <meshStandardMaterial color="#eaeef2" metalness={0.15} roughness={0.55} />
-      </mesh>
-      <mesh position={[-0.9, -0.35, 0.75]}>
-        <boxGeometry args={[1.8, 0.14, 2.0]} />
-        <meshStandardMaterial color="#eaeef2" metalness={0.15} roughness={0.55} />
-      </mesh>
+      <TaperedWing side={1} rootX={0.3} span={5.0} rootChord={2.35} tipChord={0.45} sweep={1.0} y={-0.38} z={0.55} color="#eaeef2" metalness={0.15} roughness={0.55} thickness={0.14} />
+      <TaperedWing side={-1} rootX={0.3} span={5.0} rootChord={2.35} tipChord={0.45} sweep={1.0} y={-0.38} z={0.55} color="#eaeef2" metalness={0.15} roughness={0.55} thickness={0.14} />
 
       {/* Winglets — angled ~65° */}
       <mesh position={[5.05, 0.46, 1.35]} rotation={[0, 0, 0.55]}>

@@ -93,10 +93,14 @@ export default function SelectScreen({
               </span>
               , {selectedLocation.region}.
             </p>
-            <div className="text-left text-xs text-zinc-300 space-y-1.5 mb-6 bg-black/30 rounded-lg p-4 border border-white/10">
+              <div className="text-left text-xs text-zinc-300 space-y-1.5 mb-6 bg-black/30 rounded-lg p-4 border border-white/10">
               <div className="flex justify-between">
-                <span className="text-zinc-500">Pitch</span>
-                <span>W / S or &uarr; / &darr;</span>
+                  <span className="text-zinc-500">Pitch up (inverted)</span>
+                  <span>S / &darr;</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zinc-500">Pitch down</span>
+                  <span>W / &uarr;</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-500">Roll (bank)</span>
@@ -189,7 +193,7 @@ export default function SelectScreen({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {WORLD_LOCATIONS.map((loc) => (
                 <button
-                  key={loc.id}
+                  key={loc.slug}
                   type="button"
                   onClick={() => onSelectLocation(loc)}
                   className="text-left rounded-lg border border-white/10 bg-black/30 hover:bg-black/50 hover:border-amber-400/50 transition-colors p-4"

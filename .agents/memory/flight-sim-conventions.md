@@ -28,3 +28,17 @@ Implemented as 7 stylized biome regions (not real map data) with synthesized lat
 
 ## TS quirk
 Using `ReactElement` (not `JSX.Element`) as the return type in model registry avoids namespace errors under this project's tsconfig.
+
+## Flight controls and command menu
+Pitch is intentionally inverted: `S` / `ArrowDown` pitches the nose up, while `W` / `ArrowUp` pitches the nose down. The in-flight command menu is opened with `Esc`; `C` cycles camera views and `M` opens airport selection.
+
+**Why:** The pilot requested conventional stick-style inverted pitch plus menu actions for camera, diversion, aircraft change, and sortie restart.
+
+**How to apply:** Keep the control hint visible in the ready screen and command menu whenever pitch bindings change.
+
+## Aircraft silhouette geometry
+The main wings on the fighter, A320, and 747 models use tapered custom prism geometry with swept leading edges instead of rectangular box slabs.
+
+**Why:** Planform taper and sweep make the aircraft read as their specific real-world class from the chase and selection cameras without adding a heavy model asset dependency.
+
+**How to apply:** Reuse the shared tapered-wing part for new aircraft; keep nose direction local -Z and preserve the existing cone rotation convention.

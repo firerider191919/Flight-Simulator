@@ -14,8 +14,9 @@ export enum Controls {
 }
 
 export const controlsMap = [
-  { name: Controls.pitchUp, keys: ['KeyW', 'ArrowUp'] },
-  { name: Controls.pitchDown, keys: ['KeyS', 'ArrowDown'] },
+  // Flight-sim convention: pull back / down on the stick to pitch up.
+  { name: Controls.pitchUp, keys: ['KeyS', 'ArrowDown'] },
+  { name: Controls.pitchDown, keys: ['KeyW', 'ArrowUp'] },
   { name: Controls.rollLeft, keys: ['KeyA', 'ArrowLeft'] },
   { name: Controls.rollRight, keys: ['KeyD', 'ArrowRight'] },
   { name: Controls.yawLeft, keys: ['KeyQ'] },
